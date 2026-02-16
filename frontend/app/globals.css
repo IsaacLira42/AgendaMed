@@ -1,40 +1,18 @@
 @import "tailwindcss";
 
-:root {
-  /* Cores Base (Regra 60-30-10) */
-  --background: #FFFFFF;
-  /* 60% - Limpeza e respiro */
-  --foreground: #0F2854;
-  /* 10% - Texto principal em Azul Profundo */
 
-  /* Paleta Específica */
-  --azul-profundo: #0F2854;
-  --azul-corporativo: #1C4D8D;
-  --azul-soft: #4988C4;
-  --azul-pastel: #BDE8F5;
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0f2854;
+
+  --color-azul-profundo: #0f2854;
+  --color-azul-corporativo: #1c4d8d;
+  --color-azul-soft: #4988c4;
+  --color-azul-pastel: #bde8f5;
 }
 
-@theme inline {
-  /* Mapeamento de Cores para o Tailwind */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-primary: var(--azul-profundo);
-  /* Títulos e Menus */
-  --color-secondary: var(--azul-corporativo);
-  /* Botões e CTAs */
-  --color-soft: var(--azul-soft);
-  /* Ícones e Bordas */
-  --color-pastel: var(--azul-pastel);
-  /* Fundos de Seção (30%) */
-
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
-}
-
+/* Opcional: regras globais */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
