@@ -13,6 +13,9 @@ import com.AgendaMed.Backend.dto.request.ConsultaCreateDTO;
 import com.AgendaMed.Backend.dto.response.ConsultaResponseDTO;
 import com.AgendaMed.Backend.dto.response.MedicoResumoDTO;
 import com.AgendaMed.Backend.dto.response.PacienteResumoDTO;
+import com.AgendaMed.Backend.exception.BusinessException;
+import com.AgendaMed.Backend.exception.ResourceNotFoundException;
+
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,12 +32,12 @@ public class ConsultaService {
         validarHorario(dto.dataHora());
 
         Medico medico = medicoRepository.findById(dto.medicoId())
-                .orElseThrow(() -> new IllegalArgumentException("Médico não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Médico não encontrado"));
         Paciente paciente = pacienteRepository.findById(dto.pacienteId())
-                .orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
 
         if (consultaRepository.existsByMedicoIdAndDataHora(dto.medicoId(), dto.dataHora())) {
-            throw new IllegalArgumentException("Já existe uma consulta para esse médico nesse horário.");
+            throw new BusinessException("Já existe uma consulta para esse médico nesse horário.");
         }
 
         Consulta consulta = new Consulta();
@@ -58,17 +61,17 @@ public class ConsultaService {
         LocalTime fim = LocalTime.of(17, 0);
 
         if (dataHora.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Não é possível agendar no passado.");
+            throw new BusinessException("Não é possível agendar no passado.");
         }
         if (dataHora.getSecond() != 0 || dataHora.getNano() != 0) {
-            throw new IllegalArgumentException("Segundos e nanos devem ser zero.");
+            throw new BusinessException("Segundos e nanos devem ser zero.");
         }
         LocalTime hora = dataHora.toLocalTime();
         if (hora.isBefore(inicio) || hora.isAfter(fim.minusMinutes(15))) {
-            throw new IllegalArgumentException("Horário fora do funcionamento (08:00-17:00).");
+            throw new BusinessException("Horário fora do funcionamento (08:00-17:00).");
         }
         if (hora.getMinute() % 15 != 0) {
-            throw new IllegalArgumentException("Horário deve ser múltiplo de 15 minutos.");
+            throw new BusinessException("Horário deve ser múltiplo de 15 minutos.");
         }
     }
 }
