@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,11 +33,10 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @NotBlank
     private String name;
 
-    @NotNull
+    @Email
     @NotBlank
     @Column(unique = true)
     private String email;
@@ -44,13 +44,14 @@ public class Usuario {
     @NotBlank
     private String senhaHash;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipo;
 
-    @NotBlank
+    @NotNull
     private Boolean ativo = true;
 
-    @NotBlank
+    @NotNull
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
