@@ -36,6 +36,11 @@ public class ConsultaService {
         Paciente paciente = pacienteRepository.findById(dto.pacienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
 
+        if (medico.getUsuario().getAtivo())
+            throw new BusinessException("O Médico deve estar Ativo");
+        if (paciente.getUsuario().getAtivo())
+            throw new BusinessException("O Paciente deve estar Ativo");
+
         if (consultaRepository.existsByMedicoIdAndDataHora(dto.medicoId(), dto.dataHora())) {
             throw new BusinessException("Já existe uma consulta para esse médico nesse horário.");
         }

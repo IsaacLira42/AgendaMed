@@ -13,20 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.AccessLevel;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "medico")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Medico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,11 +31,25 @@ public class Medico {
     @JoinColumn(name = "usuario_fk", nullable = false, unique = true)
     private Usuario usuario;
 
+    @Column(nullable = false, unique = true)
+    private String crm;
+
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
     private List<Consulta> consultas = new ArrayList<>();
 
-    @NotBlank
-    @NotNull
-    @Column(unique = true)
-    private String crm;
+    private Medico(String crm) {
+        this.crm = normalizarCrm(crm);
+    }
+
+    public static Medico criar(String crm) {
+        return new Medico(crm);
+    }
+
+    void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    private String normalizarCrm(String crm) {
+        return crm.trim().toUpperCase();
+    }
 }

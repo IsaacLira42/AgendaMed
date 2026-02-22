@@ -2,6 +2,8 @@ package com.AgendaMed.Backend.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.AgendaMed.Backend.model.enums.TipoUsuario;
 
 import jakarta.persistence.CascadeType;
@@ -14,49 +16,74 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "usuario")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    @Email
-    @NotBlank
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @NotBlank
+    @Column(nullable = false)
     private String senhaHash;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false)
     private TipoUsuario tipo;
 
-    @NotNull
-    private Boolean ativo = true;
+    @Column(nullable = false)
+    private Boolean ativo;
 
-    @NotNull
-    private LocalDateTime dataCriacao = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime dataCriacao;
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Paciente paciente;
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Medico medico;
+
+    private Usuario(String name, String email, String senhaHash, TipoUsuario tipo) {
+        this.name = name.trim();
+        this.email = email.trim().toLowerCase();
+        this.senhaHash = senhaHash;
+        this.tipo = tipo;
+        this.ativo = true;
+    }
+
+    public static Usuario criarPaciente(String name, String email, String senhaHash) {
+        return new Usuario(name, email, senhaHash, TipoUsuario.PACIENTE);
+    }
+
+    public static Usuario criarMedico(String name, String email, String senhaHash) {
+        return new Usuario(name, email, senhaHash, TipoUsuario.MEDICO);
+    }
+
+    public void associarPaciente(Paciente paciente) {
+        if (this.tipo != TipoUsuario.PACIENTE) {
+            throw new IllegalStateException("Usuário não é do tipo PACIENTE");
+        }
+        this.paciente = paciente;
+        paciente.setUsuario(this);
+    }
+
+    public void associarMedico(Medico medico) {
+        if (this.tipo != TipoUsuario.MEDICO) {
+            throw new IllegalStateException("Usuário não é do tipo MEDICO");
+        }
+        this.medico = medico;
+        medico.setUsuario(this);
+    }
 }
