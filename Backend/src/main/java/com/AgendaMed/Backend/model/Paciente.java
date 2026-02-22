@@ -13,20 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.AccessLevel;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "paciente")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Paciente {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,13 +31,24 @@ public class Paciente {
     @JoinColumn(name = "usuario_fk", nullable = false, unique = true)
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
-    private List<Consulta> consultas = new ArrayList<>();
-
-    @NotBlank
-    @NotNull
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String cpf;
 
     private String telefone;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+    private List<Consulta> consultas = new ArrayList<>();
+
+    private Paciente(String cpf, String telefone) {
+        this.cpf = cpf;
+        this.telefone = telefone;
+    }
+
+    public static Paciente criar(String cpf, String telefone) {
+        return new Paciente(cpf, telefone);
+    }
+
+    void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }
