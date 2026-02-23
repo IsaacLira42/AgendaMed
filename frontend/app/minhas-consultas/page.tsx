@@ -1,4 +1,5 @@
 import ConsultaTable from "@/components/ConsultaTable";
+import RequireAuth from "@/components/RequireAuth";
 
 const MOCK = [
     { id: "1", medico: "Dr. João Silva", especialidade: "Cardiologia", data: new Date().toISOString(), status: "Concluída" },
@@ -8,9 +9,11 @@ const MOCK = [
 
 export default function MinhasConsultasPage() {
     return (
-        <div className="ml-56 p-8">
-            <h1 className="text-2xl font-bold mb-4">Minhas Consultas</h1>
-            <ConsultaTable consultas={MOCK} />
-        </div>
+        <RequireAuth>
+            <div className="ml-56 p-8">
+                <h1 className="text-2xl font-bold mb-4">Minhas Consultas</h1>
+                <ConsultaTable consultas={MOCK} />
+            </div>
+        </RequireAuth>
     );
 }

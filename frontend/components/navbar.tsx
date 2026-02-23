@@ -2,23 +2,25 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export const Navbar = () => {
   const pathname = usePathname() || "/";
   const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
+
   const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("user");
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        setUserName(parsed?.nome || parsed?.name || parsed?.username || String(parsed));
-      } catch {
-        setUserName(raw);
-      }
+    if (!user) {
+      setUserName(null);
+      return;
     }
-  }, []);
+    const name = (user as any)?.nome || (user as any)?.name || (user as any)?.username || String(user);
+    setUserName(name);
+  }, [user]);
+
+  if (!isAuthenticated) return null;
 
   const linkClass = (path: string) => {
     const active = path === "/" ? pathname === "/" : pathname.startsWith(path);
@@ -26,8 +28,7 @@ export const Navbar = () => {
   };
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     setUserName(null);
     router.push("/");
   }
