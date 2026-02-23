@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -33,6 +34,10 @@ public class Medico {
 
     @Column(nullable = false, unique = true)
     private String crm;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String especialidade;
 
     @OneToMany(mappedBy = "medico", cascade = CascadeType.ALL)
     private List<Consulta> consultas = new ArrayList<>();
