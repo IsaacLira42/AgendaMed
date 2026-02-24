@@ -5,10 +5,10 @@ POST {{BASE_URL}}/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "name": "João da Silva",
-  "email": "joao.silva5@email.com",
-  "senha": "senhaSegura123",
-  "cpf": "1234567899",
+  "name": "Isaac Lira",
+  "email": "eu.lira@proton.me",
+  "senha": "123456",
+  "cpf": "12345674444",
   "telefone": "01999998899"
 }
 
@@ -17,7 +17,7 @@ POST {{BASE_URL}}/login HTTP/1.1
 content-type: application/json
 
 {
-"email": "joao.silva5@email.com",
-"senha": "senhaSegura123"
+"email": "eu.lira@proton.me",
+"senha": "123456"
 }
 
