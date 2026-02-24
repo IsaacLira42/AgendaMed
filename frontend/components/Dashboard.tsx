@@ -1,20 +1,26 @@
 import ConsultaTable from "./ConsultaTable";
 import AgendarForm from "./AgendarForm";
+import { useEffect, useState } from "react";
+import { pacienteService } from "@/services/pacienteService";
+import { AgendaDTO } from "@/types";
 
-const MOCK_PROXIMA = {
-    medico: "Dra. Maria Souza",
-    especialidade: "Dermatologia",
-    data: new Date(Date.now() + 86400000).toISOString(),
-    status: "Agendada",
-};
-
-const MOCK_FUTURAS = [
-    { id: "a1", medico: "Dra. Maria Souza", especialidade: "Dermatologia", data: new Date(Date.now() + 86400000).toISOString(), status: "Agendada" },
-    { id: "a2", medico: "Dr. João Silva", especialidade: "Cardiologia", data: new Date(Date.now() + 86400000 * 3).toISOString(), status: "Confirmada" },
-    { id: "a3", medico: "Dra. Ana Paula", especialidade: "Pediatria", data: new Date(Date.now() + 86400000 * 10).toISOString(), status: "Pendente" },
-];
 
 export default function Dashboard() {
+    const [consultas, setConsultas] = useState<AgendaDTO | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        pacienteService.getAgenda()
+            .then((data) => {
+                setConsultas(data);
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return <p>Carregando...</p>;
+    }
+
     return (
         <div className="space-y-6">
             <section className="bg-white p-6 rounded-lg shadow">
@@ -24,25 +30,44 @@ export default function Dashboard() {
 
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="col-span-2">
+
                     <div className="bg-white p-6 rounded-lg shadow mb-6">
                         <h3 className="text-lg font-semibold">Próxima Consulta</h3>
-                        <div className="mt-4 flex items-center justify-between">
-                            <div>
-                                <p className="font-medium">{MOCK_PROXIMA.medico} — {MOCK_PROXIMA.especialidade}</p>
-                                <p className="text-sm text-gray-600">{new Date(MOCK_PROXIMA.data).toLocaleString()}</p>
+
+                        {consultas?.consulta ? (
+                            <div className="mt-4 flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium">
+                                        {consultas.consulta.medico.nome} — {consultas.consulta.medico.especialidade}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        {new Date(consultas.consulta.dataHora).toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <div className="ml-4">
+                                    <span className="inline-flex items-center text-sm font-medium px-3 py-1 rounded-full bg-blue-50 text-azul-corporativo">
+                                        {consultas.consulta.status}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="ml-4">
-                                <span className="inline-flex items-center text-sm font-medium px-3 py-1 rounded-full bg-blue-50 text-azul-corporativo">
-                                    {MOCK_PROXIMA.status}
-                                </span>
-                            </div>
-                        </div>
+                        ) : (
+                            <p className="mt-4 text-gray-500">
+                                Nenhuma consulta futura agendada.
+                            </p>
+                        )}
                     </div>
 
                     <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-lg font-semibold mb-4">Consultas Futuras</h3>
-                        <ConsultaTable consultas={MOCK_FUTURAS} />
+                        <h3 className="text-lg font-semibold mb-4">
+                            Consultas Futuras
+                        </h3>
+
+                        <ConsultaTable
+                            consultas={consultas?.proximasConsultas ?? []}
+                        />
                     </div>
+
                 </div>
 
                 <aside>

@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { authService } from "@/services/authService";
 import { useAuth } from "@/context/AuthContext";
 import RedirectIfAuthenticated from "@/components/RedirectIfAuthenticated";
 

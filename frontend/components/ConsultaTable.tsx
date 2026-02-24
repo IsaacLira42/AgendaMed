@@ -1,12 +1,12 @@
-import React from "react";
+import { ConsultaResponseDTO } from "@/types";
 
-type Consulta = {
-    id: string;
-    medico: string;
-    especialidade: string;
-    data: string;
-    status: string;
-};
+// type Consulta = {
+//     id: string;
+//     medico: string;
+//     especialidade: string;
+//     data: string;
+//     status: string;
+// };
 
 const statusClass = (status: string) => {
     switch (status.toLowerCase()) {
@@ -24,7 +24,7 @@ const statusClass = (status: string) => {
     }
 };
 
-export default function ConsultaTable({ consultas }: { consultas: Consulta[] }) {
+export default function ConsultaTable({ consultas }: { consultas: ConsultaResponseDTO[] }) {
     return (
         <div className="overflow-x-auto bg-white rounded-lg shadow">
             <table className="min-w-full divide-y divide-gray-200">
@@ -40,10 +40,10 @@ export default function ConsultaTable({ consultas }: { consultas: Consulta[] }) 
                     {consultas.map((c, idx) => (
                         <tr key={c.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">{c.medico}</div>
+                                <div className="text-sm font-medium text-gray-900">{c.medico.nome}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{c.especialidade}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(c.data).toLocaleString()}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{c.medico.especialidade}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(c.dataHora).toLocaleString()}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass(c.status)}`}>
                                     {c.status}
