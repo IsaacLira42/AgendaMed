@@ -21,7 +21,7 @@ import com.AgendaMed.Backend.model.Usuario;
 import com.AgendaMed.Backend.repository.ConsultaRepository;
 import com.AgendaMed.Backend.repository.UsuarioRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -60,31 +60,41 @@ public class PacienteService {
                 usuario.getPaciente().getTelefone());
     }
 
+    @Transactional(readOnly = true)
     public AgendaDTO getAgenda() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Long pacienteId = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"))
-                .getPaciente().getId();
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
+
+        if (usuario.getPaciente() == null) {
+            throw new ResourceNotFoundException("Paciente não encontrado");
+        }
+
+        Long pacienteId = usuario.getPaciente().getId();
 
         List<Consulta> consultasFuturas = consultaRepository
-                .findByPacienteIdAndDataHoraAfterOrderByDataHoraAsc(
+                .buscarAgendaPaciente(
                         pacienteId,
                         LocalDateTime.now());
 
+        // Caso 1: Não tem consultas futuras
         if (consultasFuturas.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Não foi encontrada nenhuma consulta futura para esse paciente");
+            return new AgendaDTO(null, List.of());
         }
 
-        // próxima consulta
-        ConsultaResponseDTO proximaConsultaDTO = ConsultaMapper.toResponseDTO(consultasFuturas.get(0));
+        // Caso 2: Tem consultas
+        ConsultaResponseDTO proximaConsulta = ConsultaMapper.toResponseDTO(consultasFuturas.get(0));
 
-        // demais consultas futuras (sem duplicar a primeira)
-        List<ConsultaResponseDTO> futurasDTO = consultasFuturas.stream()
+        List<ConsultaResponseDTO> futuras = consultasFuturas.stream()
                 .skip(1)
                 .map(ConsultaMapper::toResponseDTO)
                 .toList();
 
-        return new AgendaDTO(proximaConsultaDTO, futurasDTO);
+        return new AgendaDTO(proximaConsulta, futuras);
     }
 }
