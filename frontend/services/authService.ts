@@ -1,18 +1,26 @@
 import { http } from "@/lib/http";
+import { RegisterData, LoginData } from "@/types";
 
 export const authService = {
-    async login(email: string, senha: string) {
-        const data: { token: string } = await http("/auth/login", {
+    async login(data: LoginData) {
+        const response: { token: string } = await http("/auth/login", {
             method: "POST",
-            body: JSON.stringify({ email, senha }),
+            body: JSON.stringify(data),
         });
 
-        localStorage.setItem("token", data.token);
-        return data;
+        localStorage.setItem("token", response.token);
+        return response;
     },
 
     async me() {
         return await http<any>("/usuarios/me");
+    },
+
+    async register(data: RegisterData) {
+        await http("/auth/register", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
     },
 
     logout() {

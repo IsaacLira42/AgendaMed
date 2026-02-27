@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "@/services/authService";
+import { LoginData } from "@/types";
 
 type User = any;
 
@@ -9,7 +10,7 @@ interface AuthContextValue {
     user: User | null;
     isAuthenticated: boolean;
     loading: boolean;
-    login: (email: string, senha: string) => Promise<void>;
+    login: (data: LoginData) => Promise<void>;
     logout: () => void;
 }
 
@@ -37,9 +38,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         init();
     }, []);
 
-    const login = async (email: string, senha: string) => {
+    const login = async (data: LoginData) => {
         setLoading(true);
-        await authService.login(email, senha);
+        await authService.login(data);
         try {
             const me = await authService.me();
             setUser(me);
