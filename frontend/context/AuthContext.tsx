@@ -2,9 +2,9 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "@/services/authService";
-import { LoginData } from "@/types";
+import { LoginData, UserDTO } from "@/types";
 
-type User = any;
+type User = UserDTO;
 
 interface AuthContextValue {
     user: User | null;
