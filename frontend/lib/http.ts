@@ -2,13 +2,11 @@ export async function http<T>(
     url: string,
     options?: RequestInit
 ): Promise<T> {
-    const token = localStorage.getItem("token");
-
     const response = await fetch(`http://localhost:8080${url}`, {
         ...options,
+        credentials: "include",
         headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
             ...options?.headers,
         },
     });

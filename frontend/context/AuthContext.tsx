@@ -11,7 +11,7 @@ interface AuthContextValue {
     isAuthenticated: boolean;
     loading: boolean;
     login: (data: LoginData) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -22,26 +22,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         async function init() {
-            const token = localStorage.getItem("token");
-            if (token) {
-                try {
-                    const me = await authService.me();
-                    setUser(me);
-                } catch (e) {
-                    console.error("Falha ao validar token", e);
-                    authService.logout();
-                    setUser(null);
-                }
+            try {
+                const me = await authService.me();
+                setUser(me);
+            } catch (e) {
+                // Silenciosamente falha, o usuário não está logado
+                setUser(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         }
         init();
     }, []);
 
     const login = async (data: LoginData) => {
         setLoading(true);
-        await authService.login(data);
         try {
+            await authService.login(data);
             const me = await authService.me();
             setUser(me);
         } finally {
@@ -49,8 +46,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const logout = () => {
-        authService.logout();
+    const logout = async () => {
+        await authService.logout();
         setUser(null);
     };
 

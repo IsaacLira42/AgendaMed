@@ -4,6 +4,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,18 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(conf -> conf.jwt(Customizer.withDefaults()));
+                .oauth2ResourceServer(conf -> conf
+                        .bearerTokenResolver(request -> {
+                            if (request.getCookies() != null) {
+                                for (Cookie cookie : request.getCookies()) {
+                                    if ("AUTH-TOKEN".equals(cookie.getName())) {
+                                        return cookie.getValue();
+                                    }
+                                }
+                            }
+                            return null;
+                        })
+                        .jwt(Customizer.withDefaults()));
 
         return http.build();
     }
@@ -81,7 +93,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(false); // JWT via header -> não precisa credenciais
+        config.setAllowCredentials(true); 
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

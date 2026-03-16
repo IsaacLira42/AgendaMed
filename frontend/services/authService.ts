@@ -3,13 +3,10 @@ import { RegisterData, LoginData } from "@/types";
 
 export const authService = {
     async login(data: LoginData) {
-        const response: { token: string } = await http("/auth/login", {
+        return await http<any>("/auth/login", {
             method: "POST",
             body: JSON.stringify(data),
         });
-
-        localStorage.setItem("token", response.token);
-        return response;
     },
 
     async me() {
@@ -23,7 +20,12 @@ export const authService = {
         });
     },
 
-    logout() {
-        localStorage.removeItem("token");
+    async logout() {
+        // Geralmente para cookies, chamamos o backend para invalidar
+        try {
+            await http("/auth/logout", { method: "POST" });
+        } catch (e) {
+            console.error("Erro ao deslogar no backend", e);
+        }
     }
 };

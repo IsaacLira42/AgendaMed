@@ -1,5 +1,7 @@
 package com.AgendaMed.Backend.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +24,16 @@ public class AuthenticationController {
     private final PacienteService pacienteService;
 
     @PostMapping("/login")
-    public TokenDTO authenticate(@RequestBody LoginDTO request) {
-        return authenticationService.authenticate(request);
+    public void authenticate(@RequestBody LoginDTO request, HttpServletResponse response) {
+        TokenDTO tokenDto = authenticationService.authenticate(request);
+        
+        Cookie cookie = new Cookie("AUTH-TOKEN", tokenDto.token());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // Em produção, usar true (HTTPS)
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
+        
+        response.addCookie(cookie);
     }
 
     @PostMapping("/register")

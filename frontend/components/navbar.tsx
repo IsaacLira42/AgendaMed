@@ -27,8 +27,8 @@ export const Navbar = () => {
     return `${active ? "font-medium text-azul-soft bg-blue-50" : "text-gray-500"} pl-4 py-2 pr-auto rounded-lg hover:bg-blue-50 cursor-pointer`;
   };
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     setUserName(null);
     router.push("/");
   }

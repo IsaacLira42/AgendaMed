@@ -1,31 +1,51 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-export default function RequireAuth({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
+const routeConfig = {
+    MEDICO: {
+        allowed: ["/minhas-consultas", "/medico"],
+        defaultRoute: "/minhas-consultas"
+    },
+    PACIENTE: {
+        allowed: ["/", "/agendar-consulta"],
+        defaultRoute: "/"
+    }
+} as const;
+
+export default function RequireAuth({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, loading, user } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        if (!loading && !isAuthenticated) {
+        if (loading) return;
+
+        if (!isAuthenticated) {
             router.push("/login");
             return;
         }
 
-        if (!loading && isAuthenticated && roles && user) {
-            const userTipo = user.tipo;
+        if (!user) return;
 
-            if (!userTipo || !roles.includes(userTipo)) {
-                if (userTipo === "MEDICO") {
-                    router.push("/minhas-consultas");
-                } else {
-                    router.push("/");
-                }
-            }
+        const config = routeConfig[user.tipo as keyof typeof routeConfig];
+
+        if (!config) {
+            router.push("/login");
+            return;
         }
-    }, [isAuthenticated, loading, router, roles, user]);
+
+        const isAllowed = config.allowed.some(route =>
+            pathname.startsWith(route)
+        );
+
+        if (!isAllowed) {
+            router.push(config.defaultRoute);
+        }
+
+    }, [loading, isAuthenticated, user, pathname, router]);
 
     if (loading || !isAuthenticated) return null;
 
