@@ -56,8 +56,8 @@ public class PacienteService {
         return new PacienteResumoDTO(
                 usuario.getId(),
                 usuario.getName(),
-                usuario.getEmail(),
-                usuario.getPaciente().getTelefone());
+                usuario.getPaciente().getTelefone(),
+                usuario.getEmail());
     }
 
     @Transactional(readOnly = true)
