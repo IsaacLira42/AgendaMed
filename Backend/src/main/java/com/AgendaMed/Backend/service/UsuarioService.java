@@ -16,13 +16,18 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioResumoDTO getUsuarioResumo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
+    public UsuarioResumoDTO getUsuarioResumoByEmail(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        return mapToDTO(usuario);
+    }
 
+    public UsuarioResumoDTO getUsuarioResumo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return getUsuarioResumoByEmail(authentication.getName());
+    }
+
+    private UsuarioResumoDTO mapToDTO(Usuario usuario) {
         return new UsuarioResumoDTO(
                 usuario.getId(),
                 usuario.getName(),

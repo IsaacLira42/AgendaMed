@@ -11,24 +11,33 @@ export async function http<T>(
         },
     });
 
+    // 1. Tratamento de Erro Centralizado
     if (!response.ok) {
         const errorText = await response.text();
         let errorMessage = "Erro na requisição";
         
         try {
-            // Tenta extrair a mensagem se o erro for um JSON
             const errorJson = JSON.parse(errorText);
             errorMessage = errorJson.message || errorMessage;
         } catch {
-            // Se não for JSON (ex: erro 500 ou texto puro), usa o texto da resposta
             errorMessage = errorText || errorMessage;
         }
         
         throw new Error(errorMessage);
     }
 
-    const text = await response.text();
-    
-    // Retorna o JSON parseado apenas se houver conteúdo no corpo da resposta
-    return text ? JSON.parse(text) : ({} as T);
+    // 2. Verificação de "No Content" (Status 204 ou corpo vazio)
+    if (response.status === 204) {
+        return {} as T;
+    }
+
+    const contentType = response.headers.get("content-type");
+
+    // 3. Processa apenas se o servidor confirmar que está enviando JSON
+    if (contentType && contentType.includes("application/json")) {
+        const text = await response.text();
+        return text ? JSON.parse(text) : ({} as T);
+    }
+
+    return {} as T;  // Caso o backend retorne 200 OK mas sem corpo
 }
