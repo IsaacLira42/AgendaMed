@@ -5,8 +5,8 @@ POST {{BASE_URL}}/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "name": "Suicida",
-  "email": "suicida@gmail.com",
+  "name": "Isaac Lira",
+  "email": "eu.lira@proton.com",
   "senha": "123456",
   "cpf": "12345674874",
   "telefone": "01976598899"
