@@ -28,7 +28,6 @@ export default function RegisterPage() {
         };
 
         try {
-            console.log(registerData);
             await authService.register(registerData);
             await login({ email, senha });
             router.push("/");

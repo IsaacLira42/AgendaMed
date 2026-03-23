@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 const me = await authService.me();
                 setUser(me);
             } catch (e) {
-                // Silenciosamente falha, o usuário não está logado
+                // Falha silenciosa: o usuário simplesmente não está autenticado
                 setUser(null);
             } finally {
                 setLoading(false);
