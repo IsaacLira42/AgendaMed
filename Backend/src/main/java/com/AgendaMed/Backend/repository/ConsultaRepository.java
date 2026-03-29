@@ -31,4 +31,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 	List<Consulta> buscarAgendaPaciente(
 			@Param("pacienteId") Long pacienteId,
 			@Param("agora") LocalDateTime agora);
+
+	// Busca todas as consultas do paciente
+	List<Consulta> findByPacienteIdOrderByDataHoraDesc(Long pacienteId);
 }

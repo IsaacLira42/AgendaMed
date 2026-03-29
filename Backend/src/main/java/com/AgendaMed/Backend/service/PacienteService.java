@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.AgendaMed.Backend.dto.request.RegisterPacienteDTO;
 import com.AgendaMed.Backend.dto.response.AgendaDTO;
 import com.AgendaMed.Backend.dto.response.ConsultaResponseDTO;
+import com.AgendaMed.Backend.dto.response.MedicoResumoDTO;
 import com.AgendaMed.Backend.dto.response.PacienteResumoDTO;
 import com.AgendaMed.Backend.exception.BusinessException;
 import com.AgendaMed.Backend.exception.ResourceNotFoundException;
@@ -27,74 +28,98 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PacienteService {
-    private final ConsultaRepository consultaRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final ConsultaRepository consultaRepository;
+  private final UsuarioRepository usuarioRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public PacienteResumoDTO register(RegisterPacienteDTO request) {
+  @Transactional
+  public PacienteResumoDTO register(RegisterPacienteDTO request) {
 
-        String senhaHash = passwordEncoder.encode(request.senha());
+    String senhaHash = passwordEncoder.encode(request.senha());
 
-        Usuario usuario = Usuario.criarPaciente(
-                request.name(),
-                request.email(),
-                senhaHash);
+    Usuario usuario = Usuario.criarPaciente(
+        request.name(),
+        request.email(),
+        senhaHash);
 
-        Paciente paciente = Paciente.criar(
-                request.cpf(),
-                request.telefone());
+    Paciente paciente = Paciente.criar(
+        request.cpf(),
+        request.telefone());
 
-        usuario.associarPaciente(paciente);
+    usuario.associarPaciente(paciente);
 
-        try {
-            usuarioRepository.save(usuario);
-        } catch (DataIntegrityViolationException ex) {
-            throw new BusinessException("Email ou CPF já cadastrado");
-        }
-
-        return new PacienteResumoDTO(
-                usuario.getId(),
-                usuario.getName(),
-                usuario.getPaciente().getTelefone(),
-                usuario.getEmail());
+    try {
+      usuarioRepository.save(usuario);
+    } catch (DataIntegrityViolationException ex) {
+      throw new BusinessException("Email ou CPF já cadastrado");
     }
 
-    @Transactional(readOnly = true)
-    public AgendaDTO getAgenda() {
+    return new PacienteResumoDTO(
+        usuario.getId(),
+        usuario.getName(),
+        usuario.getPaciente().getTelefone(),
+        usuario.getEmail());
+  }
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+  @Transactional(readOnly = true)
+  public AgendaDTO getAgenda() {
 
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
+    String email = SecurityContextHolder
+        .getContext()
+        .getAuthentication()
+        .getName();
 
-        if (usuario.getPaciente() == null) {
-            throw new ResourceNotFoundException("Paciente não encontrado");
-        }
+    Usuario usuario = usuarioRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
 
-        Long pacienteId = usuario.getPaciente().getId();
-
-        List<Consulta> consultasFuturas = consultaRepository
-                .buscarAgendaPaciente(
-                        pacienteId,
-                        LocalDateTime.now());
-
-        // Caso 1: Não tem consultas futuras
-        if (consultasFuturas.isEmpty()) {
-            return new AgendaDTO(null, List.of());
-        }
-
-        // Caso 2: Tem consultas
-        ConsultaResponseDTO proximaConsulta = ConsultaMapper.toResponseDTO(consultasFuturas.get(0));
-
-        List<ConsultaResponseDTO> futuras = consultasFuturas.stream()
-                .skip(1)
-                .map(ConsultaMapper::toResponseDTO)
-                .toList();
-
-        return new AgendaDTO(proximaConsulta, futuras);
+    if (usuario.getPaciente() == null) {
+      throw new ResourceNotFoundException("Paciente não encontrado");
     }
+
+    Long pacienteId = usuario.getPaciente().getId();
+
+    List<Consulta> consultasFuturas = consultaRepository
+        .buscarAgendaPaciente(
+            pacienteId,
+            LocalDateTime.now());
+
+    // Caso 1: Não tem consultas futuras
+    if (consultasFuturas.isEmpty()) {
+      return new AgendaDTO(null, List.of());
+    }
+
+    // Caso 2: Tem consultas
+    ConsultaResponseDTO proximaConsulta = ConsultaMapper.toResponseDTO(consultasFuturas.get(0));
+
+    List<ConsultaResponseDTO> futuras = consultasFuturas.stream()
+        .skip(1)
+        .map(ConsultaMapper::toResponseDTO)
+        .toList();
+
+    return new AgendaDTO(proximaConsulta, futuras);
+  }
+
+  // Retorna o histórico de consultas do paciente, ordenado da mais recente para a
+  // mais antiga
+  @Transactional(readOnly = true)
+  public List<ConsultaResponseDTO> consultasPaciente() {
+    String email = SecurityContextHolder
+        .getContext()
+        .getAuthentication()
+        .getName();
+
+    Usuario usuario = usuarioRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
+
+    if (usuario.getPaciente() == null) {
+      throw new ResourceNotFoundException("Paciente não encontrado");
+    }
+
+    List<Consulta> consultas = consultaRepository
+        .findByPacienteIdOrderByDataHoraDesc(usuario.getPaciente().getId());
+
+    return consultas.stream()
+        .map(ConsultaMapper::toResponseDTO)
+        .toList();
+  }
 }

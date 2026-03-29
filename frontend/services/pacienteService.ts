@@ -1,5 +1,5 @@
 import { http } from "@/lib/http";
-import { AgendaDTO } from "@/types";
+import { AgendaDTO, ConsultaResponseDTO } from "@/types";
 
 export const pacienteService = {
     async getAgenda() {
@@ -7,4 +7,10 @@ export const pacienteService = {
 
         return agenda;
     },
+
+    async getConsultas() {
+        const consultas: ConsultaResponseDTO[] = await http<ConsultaResponseDTO[]>("/pacientes/consultas-paciente");
+
+        return consultas;
+    }
 };

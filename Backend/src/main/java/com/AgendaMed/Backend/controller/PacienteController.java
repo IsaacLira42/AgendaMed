@@ -1,11 +1,14 @@
 package com.AgendaMed.Backend.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.AgendaMed.Backend.dto.response.AgendaDTO;
 import com.AgendaMed.Backend.service.PacienteService;
+import com.AgendaMed.Backend.dto.response.ConsultaResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,5 +21,10 @@ public class PacienteController {
     @GetMapping("/agenda")
     public AgendaDTO getAgenda() {
         return pacienteService.getAgenda();
+    }
+
+    @GetMapping("/consultas-paciente")
+    public List<ConsultaResponseDTO> getConsultasPaciente() {
+        return pacienteService.consultasPaciente();
     }
 }
