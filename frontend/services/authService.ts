@@ -20,8 +20,9 @@ export const authService = {
         });
     },
 
+    // ! Criar metodo no backend para invalidar cookie
+    // * Ja que o localhost não sera mais usado para armazenar o cookie, o logout deixou de funcionar, ainda é nescessario alterar o back 
     async logout() {
-        // Geralmente para cookies, chamamos o backend para invalidar
         try {
             await http("/auth/logout", { method: "POST" });
         } catch (e) {
