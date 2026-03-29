@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,4 +50,7 @@ public class AuthenticationController {
     public PacienteResumoDTO register(@RequestBody RegisterPacienteDTO request) {
         return pacienteService.register(request);
     }
+
+    // ! O Método de logout é configurado via SecurityConfig,
+    // ! então não precisamo de um endpoint aqui.
 }

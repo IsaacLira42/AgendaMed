@@ -5,6 +5,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,11 +44,22 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Lembre-se do risco CSRF com Cookies em produção!
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(basic -> basic.disable())
+                // --- CONFIGURAÇÃO DE LOGOUT ---
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout") // URL que o frontend vai chamar (POST)
+                        .deleteCookies("AUTH-TOKEN")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .logoutSuccessHandler((request, response, authentication) -> { // Retorna 200 OK sem
+                                                                                       // redirecionar
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        }))
+                // -----------------------------------
                 .oauth2ResourceServer(conf -> conf
                         .bearerTokenResolver(request -> {
                             if (request.getCookies() != null) {
@@ -93,7 +106,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true); 
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
