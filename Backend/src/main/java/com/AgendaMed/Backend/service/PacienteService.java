@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.AgendaMed.Backend.dto.request.RegisterPacienteDTO;
 import com.AgendaMed.Backend.dto.response.AgendaDTO;
 import com.AgendaMed.Backend.dto.response.ConsultaResponseDTO;
-import com.AgendaMed.Backend.dto.response.MedicoResumoDTO;
 import com.AgendaMed.Backend.dto.response.PacienteResumoDTO;
 import com.AgendaMed.Backend.exception.BusinessException;
 import com.AgendaMed.Backend.exception.ResourceNotFoundException;

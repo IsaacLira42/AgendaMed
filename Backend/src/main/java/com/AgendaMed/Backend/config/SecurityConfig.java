@@ -44,14 +44,14 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable()) // Lembre-se do risco CSRF com Cookies em produção!
+                .csrf(csrf -> csrf.disable()) // ! Lembre-se do risco CSRF com Cookies em produção!
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(basic -> basic.disable())
                 // --- CONFIGURAÇÃO DE LOGOUT ---
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout") // URL que o frontend vai chamar (POST)
+                        .logoutUrl("/auth/logout") // * URL que o frontend vai chamar (POST)
                         .deleteCookies("AUTH-TOKEN")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
