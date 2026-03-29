@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/pacientes/**").hasRole("PACIENTE")
                         .requestMatchers("/medicos/**").hasRole("MEDICO")
-                        // .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(basic -> basic.disable())
                 .logout(logout -> logout
