@@ -12,11 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.AgendaMed.Backend.dto.request.LoginDTO;
 import com.AgendaMed.Backend.dto.request.RegisterPacienteDTO;
 import com.AgendaMed.Backend.dto.response.PacienteResumoDTO;
-import com.AgendaMed.Backend.dto.response.TokenDTO;
 import com.AgendaMed.Backend.dto.response.UsuarioResumoDTO;
 import com.AgendaMed.Backend.service.AuthenticationService;
 import com.AgendaMed.Backend.service.PacienteService;
-import com.AgendaMed.Backend.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,13 +24,12 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final PacienteService pacienteService;
-    private final UsuarioService usuarioService;
 
     @PostMapping("/login")
     public ResponseEntity<UsuarioResumoDTO> authenticate(@RequestBody LoginDTO request, HttpServletResponse response) {
-        TokenDTO tokenDto = authenticationService.authenticate(request);
+        var authResult = authenticationService.authenticate(request);
 
-        Cookie cookie = new Cookie("AUTH-TOKEN", tokenDto.token());
+        Cookie cookie = new Cookie("AUTH-TOKEN", authResult.token());
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // Em produção, usar true (HTTPS)
         cookie.setPath("/");
@@ -40,9 +37,7 @@ public class AuthenticationController {
 
         response.addCookie(cookie);
 
-        UsuarioResumoDTO usuario = usuarioService.getUsuarioResumoByEmail(request.email());
-
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(authResult.usuario());
     }
 
     @PostMapping("/register")
