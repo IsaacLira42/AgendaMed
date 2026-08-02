@@ -1,0 +1,8 @@
+@BASE_URL = http://localhost:8080
+
+### Horarios Disponiveis de um Medico
+GET {{BASE_URL}}/medicos/0/horarios?data=2025-05-23 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzcHJpbmctc2VjdXJpdHktand0Iiwic3ViIjoiZXUubGlyYUBwcm90b24ubWUiLCJleHAiOjE3NzQ1NjAzNDIsImlhdCI6MTc3NDU1Njc0Miwic2NvcGUiOiJST0xFX1BBQ0lFTlRFIEZBQ1RPUl9QQVNTV09SRCJ9.Qpz8cvQ3tWzSwL7yvtLANP5wG-dEYxRjq6hgnC-yuRmxRGEzrbY_S0VBl2lPJfgr6S18lyoVyYoGVriKIZG3P8rnc7ZMqTdwTJmm-HJbTUoyF1VUNjOWCVwTsjotwd4xkZl7abhjPX1y3kQCnpB46kljANAuO3F-ONHI0HjefmLOZhwIXp6gf6HsadYox4dvjUa3GmYXFI0K9dNi2iSZPkrDyhTFt-rvhG9dqtozqns1R0uW1yfLp16WKDeIybmTvqvYAvmKWoKS-X4G8i0qncdacP36l2dmQo9gDNqGusCLKXDd7yy49rwrrAygWMcuGUvZ7MDG174mCSmBaz2qIQ
+
+### 

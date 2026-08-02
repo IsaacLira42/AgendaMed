@@ -11,14 +11,21 @@ import com.AgendaMed.Backend.model.Paciente;
 import com.AgendaMed.Backend.model.enums.StatusConsulta;
 import com.AgendaMed.Backend.dto.request.ConsultaCreateDTO;
 import com.AgendaMed.Backend.dto.response.ConsultaResponseDTO;
+import com.AgendaMed.Backend.dto.response.HorarioDisponivelDTO;
 import com.AgendaMed.Backend.dto.response.MedicoResumoDTO;
 import com.AgendaMed.Backend.dto.response.PacienteResumoDTO;
 import com.AgendaMed.Backend.exception.BusinessException;
 import com.AgendaMed.Backend.exception.ResourceNotFoundException;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,5 +85,32 @@ public class ConsultaService {
         if (hora.getMinute() % 15 != 0) {
             throw new BusinessException("Horário deve ser múltiplo de 15 minutos.");
         }
+    }
+
+    public List<HorarioDisponivelDTO> listarHorariosDisponiveis(Long medicoId, LocalDate data) {
+        LocalTime inicioExpediente = LocalTime.of(8, 0);
+        LocalTime fimExpediente = LocalTime.of(17, 0);
+
+        LocalDateTime inicioDia = data.atStartOfDay();
+        LocalDateTime fimDia = data.atTime(23, 59, 59);
+
+        List<Consulta> consultas = consultaRepository
+                .findByMedicoIdAndDataHoraBetween(medicoId, inicioDia, fimDia);
+
+        Set<LocalTime> horariosOcupados = consultas.stream()
+                .map(c -> c.getDataHora().toLocalTime())
+                .collect(Collectors.toSet());
+
+        List<HorarioDisponivelDTO> horarios = new ArrayList<>();
+
+        LocalTime horarioAtual = inicioExpediente;
+
+        while (!horarioAtual.isAfter(fimExpediente.minusMinutes(15))) {
+            boolean disponivel = !horariosOcupados.contains(horarioAtual);
+            horarios.add(new HorarioDisponivelDTO(horarioAtual, disponivel));
+            horarioAtual = horarioAtual.plusMinutes(15);
+        }
+
+        return horarios;
     }
 }
